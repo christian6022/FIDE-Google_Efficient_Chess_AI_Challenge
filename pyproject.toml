@@ -1,0 +1,73 @@
+[tool.poetry]
+name = "fide-google-efficient-chess-ai-challenge"
+version = "0.1.0"
+description = ""
+authors = ["Qristian6022 <a5820059.aoyama@jp>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.13"
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.7.1"
+mypy = "^1.11.2"
+pytest = "^8.3.3"
+coverage = "^7.6.4"
+ipykernel = "^6.29.5"
+gokart = "^1.7.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+line-length = 99
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "U", # unnecessary code
+]
+ignore = [
+    "B028",  # No explicit `stacklevel` keyword argument found
+    "E731",  # Do not assign a `lambda` expression, use a `def`
+    "E741",  # Ambiguous variable name (for lambda expression)
+    "E501",  # Line too long
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+    "W191",  # indentation contains tabs
+    "B904", # raise ... from ... になっていない場合のエラーを無視
+]
+unfixable = [
+    "F401",   # unused import
+    "F841",   # unused variable
+    "ERA001", # commented out code
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
+warn_untyped_fields = true
+
+[tool.mypy]
+ignore_missing_imports = true
+
+
+[tool.coverage]
+source = ["src", "tests"]
+
+[tool.coverage.run]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 100
