@@ -6,7 +6,8 @@ authors = ["Qristian6022 <a5820059.aoyama@jp>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.13"
+python = "^3.10"
+kaggle-environments = "^1.16.9"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.7.1"
