@@ -87,6 +87,37 @@ def chess_bot(obs):
 
         return total_score
 
+    def is_move_capturable(game, move, is_white):
+        """
+        指定されたmoveが次の相手の手で取られるかを判定する。
+
+        引数:
+            game: 現在の盤面オブジェクト。
+            move (str): UCI表記の手（例: "e2e4"）。
+            is_white (bool): 自分が白（True）か黒（False）か。
+
+        戻り値:
+            bool: 次の相手の一手で駒が取られる可能性がある場合True、そうでなければFalse。
+        """
+        # 現在のゲーム状態をコピー
+        sim_game = Game(str(game))
+
+        # 指定されたmoveを適用
+        sim_game.apply_move(move)
+
+        # 自分の駒の位置（行き先のマス）を取得
+        target_square = move[2:4]  # 行き先の座標
+
+        # 次の相手の合法手を取得
+        opponent_moves = list(sim_game.get_moves())
+
+        # 相手の手で取られるかチェック
+        for opponent_move in opponent_moves:
+            if opponent_move[2:4] == target_square:  # 行き先が自分の駒の位置
+                return True
+
+        return False
+
     ## 0. 盤面情報の取得
     # 先手・後手の判定
     is_white = obs.mark == "white"
@@ -98,7 +129,6 @@ def chess_bot(obs):
 
     # 相手の点数の取得
     enemy_score = calculate_piece_score(fen, is_white)
-
 
     # 1. チェックメイト
     for move in moves[:10]:
@@ -118,11 +148,23 @@ def chess_bot(obs):
     for move in moves:
         # 特定のマスに駒が存在する場合、その駒の種類を取得
         piece_exists = game.board.get_piece(Game.xy2i(move[2:4]))
+        piece_exists = piece_exists.upper() if is_white else piece_exists
 
         if piece_exists != " ":
-            if transform_piece(piece_exists, is_white, is_mine=False) in PIECE_VALUES:
-                return move
-            return move
+            if piece_exists == "Q":
+                if not is_move_capturable(game, move, is_white):
+                    return move
+                else:
+                    continue
+            elif piece_exists == "R":
+                if not is_move_capturable(game, move, is_white):
+                    return move
+            elif piece_exists == "B" or piece_exists == "N":
+                if not is_move_capturable(game, move, is_white):
+                    return move
+            elif piece_exists == "P":
+                if not is_move_capturable(game, move, is_white):
+                    return move
 
     # 3. クイーンへの昇格
     for move in moves:
