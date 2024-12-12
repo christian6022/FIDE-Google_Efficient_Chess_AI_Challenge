@@ -37,7 +37,6 @@ def chess_bot(obs):
     ...
     """
     for move in moves:
-
         if game.board.get_piece(Game.xy2i(move[2:4])) != " ":
             return move
 
