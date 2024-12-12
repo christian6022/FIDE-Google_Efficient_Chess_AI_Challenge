@@ -91,8 +91,6 @@ def chess_bot(obs):
     # 先手・後手の判定
     is_white = obs.mark == "white"
 
-    print(obs.mark, is_white)
-
     # 合法的な一手を全て取得
     game = Game(obs.board)
     moves = list(game.get_moves())
@@ -100,7 +98,7 @@ def chess_bot(obs):
 
     # 相手の点数の取得
     enemy_score = calculate_piece_score(fen, is_white)
-    print(f"相手の点数: {enemy_score}")
+
 
     # 1. チェックメイト
     for move in moves[:10]:
