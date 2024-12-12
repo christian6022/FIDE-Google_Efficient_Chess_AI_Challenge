@@ -17,7 +17,6 @@ def chess_bot(obs):
     戻り値:
         UCI表記（例:e2e4）で選択された手を表す文字列
     """
-
     # 0. 盤面情報を取得し、合法的な一手を全て取得
     game = Game(obs.board)
     moves = list(game.get_moves())
@@ -38,6 +37,7 @@ def chess_bot(obs):
     ...
     """
     for move in moves:
+
         if game.board.get_piece(Game.xy2i(move[2:4])) != " ":
             return move
 
