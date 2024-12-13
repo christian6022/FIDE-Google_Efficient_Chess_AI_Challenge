@@ -125,12 +125,10 @@ def chess_bot(obs):
     # 合法的な一手を全て取得
     game = Game(obs.board)
     moves = list(game.get_moves())
-    # fen = obs.board
+    fen = obs.board
 
     # 相手の点数の取得
     # enemy_score = calculate_piece_score(fen, is_white)
-
-    # 1-0. 即キル戦術
 
     # 1. チェックメイト
     for move in moves[:10]:
