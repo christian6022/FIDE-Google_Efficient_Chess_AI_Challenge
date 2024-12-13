@@ -139,32 +139,29 @@ def chess_bot(obs):
 
     # 2. 駒の捕獲
     """
-    UCI表記の3~4文字目が行き先のマス
-    -> get_pieceで対象のマスに駒があるか確認
-    ・' ': 何もない
-    ・'P': 白ポーン
-    ...
+    ・相手駒を捕獲できる場合は捕獲
+    ・捕獲後に、相手に捕獲されてしまう場合は、コマの損得で判断
     """
     for move in moves:
         # 特定のマスに駒が存在する場合、その駒の種類を取得
-        piece_exists = game.board.get_piece(Game.xy2i(move[2:4]))
-        piece_exists = piece_exists.upper() if is_white else piece_exists
+        opponent_piece = game.board.get_piece(Game.xy2i(move[2:4]))
+        opponent_piece = opponent_piece.upper() if is_white else opponent_piece
 
-        if piece_exists != " ":
-            if piece_exists == "Q":
-                if not is_move_capturable(game, move, is_white):
+        mine_piece = game.board.get_piece(Game.xy2i(move[:2]))
+
+        if opponent_piece != " ":
+            # 次の一手で取られるか、自分の駒、相手の駒を取得
+            is_capturable= is_move_capturable(game, move, is_white)
+            print(fen.split()[-1], is_capturable, mine_piece, opponent_piece)
+            if not is_capturable: # 次の一手で取られない場合、その手を選択
+                return move
+            else: # 次の一手で取られる場合、コマの損得で判断
+                if mine_piece == "Q":
+                    continue
+                elif PIECE_VALUES[mine_piece.upper()] > PIECE_VALUES[opponent_piece.upper()]:
                     return move
                 else:
                     continue
-            elif piece_exists == "R":
-                if not is_move_capturable(game, move, is_white):
-                    return move
-            elif piece_exists == "B" or piece_exists == "N":
-                if not is_move_capturable(game, move, is_white):
-                    return move
-            elif piece_exists == "P":
-                if not is_move_capturable(game, move, is_white):
-                    return move
 
     # 3. クイーンへの昇格
     for move in moves:
