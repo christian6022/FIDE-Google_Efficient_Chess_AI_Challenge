@@ -125,10 +125,12 @@ def chess_bot(obs):
     # 合法的な一手を全て取得
     game = Game(obs.board)
     moves = list(game.get_moves())
-    fen = obs.board
+    # fen = obs.board
 
     # 相手の点数の取得
-    enemy_score = calculate_piece_score(fen, is_white)
+    # enemy_score = calculate_piece_score(fen, is_white)
+
+    # 1-0. 即キル戦術
 
     # 1. チェックメイト
     for move in moves[:10]:
@@ -151,11 +153,10 @@ def chess_bot(obs):
 
         if opponent_piece != " ":
             # 次の一手で取られるか、自分の駒、相手の駒を取得
-            is_capturable= is_move_capturable(game, move, is_white)
-            print(fen.split()[-1], is_capturable, mine_piece, opponent_piece)
-            if not is_capturable: # 次の一手で取られない場合、その手を選択
+            is_capturable = is_move_capturable(game, move, is_white)
+            if not is_capturable:  # 次の一手で取られない場合、その手を選択
                 return move
-            else: # 次の一手で取られる場合、コマの損得で判断
+            else:  # 次の一手で取られる場合、コマの損得で判断
                 if mine_piece == "Q":
                     continue
                 elif PIECE_VALUES[mine_piece.upper()] > PIECE_VALUES[opponent_piece.upper()]:
