@@ -8,10 +8,10 @@ PIECE_VALUES = {
     "B": 3,  # ビショップ
     "R": 5,  # ルーク
     "Q": 9,  # クイーン
-    "K": 100,  # キング
+    "K": 0,  # キング
 }
 
-ENEMY_SCORE = 139
+ENEMY_SCORE = 39
 
 
 def chess_bot(obs):
@@ -78,7 +78,29 @@ def chess_bot(obs):
         # 指定された手が合法でない場合はNoneを返す
         return None
 
+    def strategy_endgame(game, moves, is_white, fifty_rule_cnt):
+        # ポーンの識別（白: "P", 黒: "p"）
+        porn_piece = "P" if is_white else "p"
 
+        # ポーンがいる場合、ポーンの手を取得
+        has_porn = any(
+            game.board.get_piece(square) == porn_piece for square in range(64)
+        )
+        if has_porn:
+            porn_moves = [
+                move for move in moves if game.board.get_piece(Game.xy2i(move[:2])) == porn_piece
+            ]
+
+        if fifty_rule_cnt > 40 and has_porn:
+            for _ in range(len(porn_moves)):
+                move = random.choice(porn_moves)
+                if not is_move_capturable(game, move, is_white):
+                    return move
+
+        while True:
+            move = random.choice(moves)
+            if not is_move_capturable(game, move, is_white):
+                return move
 
     def calculate_piece_score(fen, is_white):
         """
@@ -148,6 +170,7 @@ def chess_bot(obs):
     moves = list(game.get_moves())
     fen = obs.board
     curr_move_cnt = int(fen.split(" ")[-1])
+    fifty_rule_cnt = int(fen.split(" ")[-2])
 
     # 相手の点数の取得
     enemy_score = calculate_piece_score(fen, is_white)
@@ -195,8 +218,12 @@ def chess_bot(obs):
         if "q" in move.lower():
             return move
 
-    # 4. ランダムに次の一手を選択
-    while True:
-        move = random.choice(moves)
-        if not is_move_capturable(game, move, is_white):
-            return move
+    if enemy_score > 10:
+        # 4. ランダムに次の一手を選択
+        while True:
+            move = random.choice(moves)
+            if not is_move_capturable(game, move, is_white):
+                return move
+    else:
+        return strategy_endgame(game, moves, is_white, fifty_rule_cnt)
+
