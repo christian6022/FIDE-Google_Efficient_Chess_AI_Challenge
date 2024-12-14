@@ -78,6 +78,42 @@ def chess_bot(obs):
         # 指定された手が合法でない場合はNoneを返す
         return None
 
+    def random_queen_move(game, moves, is_white):
+        """
+        クイーンを優先して取られない動きを選択し、次の手でキャプチャするか判断。
+
+        引数:
+            game: 現在のゲームオブジェクト。
+            moves: 現在の合法手リスト。
+            is_white: 自分が白（True）か黒（False）か。
+
+        戻り値:
+            str: 選択したUCI形式の手。
+        """
+        # クイーンの識別（白: "Q", 黒: "q"）
+        queen_piece = "Q" if is_white else "q"
+
+        # クイーンが存在するか確認
+        has_queen = any(game.board.get_piece(square) == queen_piece for square in range(64))
+
+        # クイーンがいる場合、クイーンの手を優先
+        if has_queen:
+            queen_moves = [
+                move for move in moves if game.board.get_piece(Game.xy2i(move[:2])) == queen_piece
+            ]
+
+            # クイーンの合法手の中から取られない手を選択
+            for _ in range(len(queen_moves)):
+                move = random.choice(queen_moves)
+                if not is_move_capturable(game, move, is_white):
+                    return move
+
+        # クイーンがいない場合、またはクイーンで安全な手がない場合、他の駒をランダムに動かす
+        while True:
+            move = random.choice(moves)
+            if not is_move_capturable(game, move, is_white):
+                return move
+
     def strategy_endgame(game, moves, is_white, fifty_rule_cnt):
         # ポーンの識別（白: "P", 黒: "p"）
         porn_piece = "P" if is_white else "p"
@@ -216,11 +252,8 @@ def chess_bot(obs):
         if "q" in move.lower():
             return move
 
+    # 4. クイーンを優先としたランダムに次の一手を選択
     if enemy_score > 10:
-        # 4. ランダムに次の一手を選択
-        while True:
-            move = random.choice(moves)
-            if not is_move_capturable(game, move, is_white):
-                return move
+        return random_queen_move(game, moves, is_white)
     else:
         return strategy_endgame(game, moves, is_white, fifty_rule_cnt)
