@@ -21,6 +21,7 @@ def chess_bot(obs):
             ・先手・後手の判定
             ・合法的な一手の取得
             ・相手の点数の取得
+        1.0 キャスリング
         1. ✅チェックメイト
         2. 駒の捕獲（駒の優先順位あり）
         3. フォーク・ピン・スキュアの判定（回避優先）
@@ -38,26 +39,46 @@ def chess_bot(obs):
         UCI表記（例:e2e4）で選択された手を表す文字列
     """
 
-    def transform_piece(piece, is_white, is_mine):
-        """駒を自分または相手に応じて変換"""
-        if is_white:
-            return piece.upper() if is_mine else piece.lower()
-        else:
-            return piece.lower() if is_mine else piece.upper()
+    def castling(game, is_white, curr_move_cnt):
+        """
+        白：イタリアンゲーム
+        黒：シシリアン・ドラゴンディフェンス
+        """
+        white_moves = [
+            "e2e4", # ポーンを2マス進める
+            "g1f3", # ナイトを展開する
+            "f1c4", # ビショップを展開する
+            "e1g1", # キャスリング
+        ]
 
-    def is_my_piece(piece, is_white):
-        """自分の駒かを判定"""
-        if is_white:
-            return piece.isupper()  # 白の駒（大文字）
-        else:
-            return piece.islower()  # 黒の駒（小文字）
+        black_moves = [
+            "e7e5", # ポーンを2マス進める
+            "d8e7", # クイーンを展開する
+            "b8c6", # ナイトを展開する
+            "d7d6", # ポーンを1マス進める
+            "c8g4", # ビショップを展開する
+            "d8c8", # キャスリング
+        ]
+        # 現在の合法手を取得
+        legal_moves = set(game.get_moves())
 
-    def is_opponent_piece(piece):
-        """相手の駒かを判定"""
+        # 白の手順
         if is_white:
-            return piece.islower()  # 黒の駒（小文字）
+            if curr_move_cnt <= len(white_moves):
+                move = white_moves[curr_move_cnt - 1]
+                if move in legal_moves:  # 合法手か確認
+                    return move
+        # 黒の手順
         else:
-            return piece.isupper()  # 白の駒（大文字）
+            if curr_move_cnt <= len(black_moves):
+                move = black_moves[curr_move_cnt - 1]
+                if move in legal_moves:  # 合法手か確認
+                    return move
+
+        # 指定された手が合法でない場合はNoneを返す
+        return None
+
+
 
     def calculate_piece_score(fen, is_white):
         """
@@ -126,9 +147,16 @@ def chess_bot(obs):
     game = Game(obs.board)
     moves = list(game.get_moves())
     fen = obs.board
+    curr_move_cnt = int(fen.split(" ")[-1])
 
     # 相手の点数の取得
-    # enemy_score = calculate_piece_score(fen, is_white)
+    enemy_score = calculate_piece_score(fen, is_white)
+
+    # 1-0. キャスリング
+    if curr_move_cnt < 7:
+        move = castling(game, is_white, curr_move_cnt)
+        if move is not None:
+            return move
 
     # 1. チェックメイト
     for move in moves[:10]:
@@ -157,7 +185,7 @@ def chess_bot(obs):
             else:  # 次の一手で取られる場合、コマの損得で判断
                 if mine_piece == "Q":
                     continue
-                elif PIECE_VALUES[mine_piece.upper()] > PIECE_VALUES[opponent_piece.upper()]:
+                elif PIECE_VALUES[mine_piece.upper()] < PIECE_VALUES[opponent_piece.upper()]:
                     return move
                 else:
                     continue
@@ -168,4 +196,7 @@ def chess_bot(obs):
             return move
 
     # 4. ランダムに次の一手を選択
-    return random.choice(moves)
+    while True:
+        move = random.choice(moves)
+        if not is_move_capturable(game, move, is_white):
+            return move
