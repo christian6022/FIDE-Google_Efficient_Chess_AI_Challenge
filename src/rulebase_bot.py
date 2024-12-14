@@ -45,19 +45,19 @@ def chess_bot(obs):
         黒：シシリアン・ドラゴンディフェンス
         """
         white_moves = [
-            "e2e4", # ポーンを2マス進める
-            "g1f3", # ナイトを展開する
-            "f1c4", # ビショップを展開する
-            "e1g1", # キャスリング
+            "e2e4",  # ポーンを2マス進める
+            "g1f3",  # ナイトを展開する
+            "f1c4",  # ビショップを展開する
+            "e1g1",  # キャスリング
         ]
 
         black_moves = [
-            "e7e5", # ポーンを2マス進める
-            "d8e7", # クイーンを展開する
-            "b8c6", # ナイトを展開する
-            "d7d6", # ポーンを1マス進める
-            "c8g4", # ビショップを展開する
-            "d8c8", # キャスリング
+            "e7e5",  # ポーンを2マス進める
+            "d8e7",  # クイーンを展開する
+            "b8c6",  # ナイトを展開する
+            "d7d6",  # ポーンを1マス進める
+            "c8g4",  # ビショップを展開する
+            "d8c8",  # キャスリング
         ]
         # 現在の合法手を取得
         legal_moves = set(game.get_moves())
@@ -83,9 +83,7 @@ def chess_bot(obs):
         porn_piece = "P" if is_white else "p"
 
         # ポーンがいる場合、ポーンの手を取得
-        has_porn = any(
-            game.board.get_piece(square) == porn_piece for square in range(64)
-        )
+        has_porn = any(game.board.get_piece(square) == porn_piece for square in range(64))
         if has_porn:
             porn_moves = [
                 move for move in moves if game.board.get_piece(Game.xy2i(move[:2])) == porn_piece
@@ -226,4 +224,3 @@ def chess_bot(obs):
                 return move
     else:
         return strategy_endgame(game, moves, is_white, fifty_rule_cnt)
-
