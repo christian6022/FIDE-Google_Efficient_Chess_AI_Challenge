@@ -9,6 +9,12 @@ PIECE_VALUES = {
     "K": 50,  # キング
 }
 
+# 0:Normal, 1:Check
+END_STATUS_VALUES = [
+    2, # Checkmate
+    3, # Stalemate
+]
+
 
 # 評価関数
 def evaluate(game, is_white):
@@ -39,7 +45,7 @@ def alpha_beta(game, depth, alpha, beta, is_maximizing):
     Args:
         - is_maximizin(bool): 白駒ならTrue,黒駒ならFalse
     """
-    if depth == 0 or game.is_over():
+    if depth == 0 or game.status in END_STATUS_VALUES:
         return evaluate(game, is_maximizing)
 
     # 合法手を取得
@@ -87,7 +93,7 @@ def chess_bot(obs):
         sim_game = Game(str(game))
         sim_game.apply_move(move)
         value = alpha_beta(
-            sim_game, depth=3, alpha=float("-inf"), beta=float("inf"), is_maximizing=is_white
+            sim_game, depth=1, alpha=float("-inf"), beta=float("inf"), is_maximizing=is_white
         )
 
         if is_white:
