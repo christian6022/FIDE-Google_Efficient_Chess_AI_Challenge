@@ -10,6 +10,8 @@ packages = [{ include = "src"}]
 python = "^3.10"
 kaggle-environments = "^1.16.9"
 ipdb = "^0.13.13"
+pygame = "^2.6.1"
+chessnut = "^0.4.1"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.7.1"
